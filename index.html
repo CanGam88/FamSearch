@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mors Slægtssøger</title>
+  <style>
+    :root {
+      --bg-paper: #FAF8F5;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F2EFE9;
+      --text-main: #1A1A1A;
+      --text-muted: #524E48;
+      --border-color: #D5CFC4;
+      --accent-primary: #2B5B4E;
+      --accent-primary-hover: #1E4238;
+      --accent-clear: #9E3B33;
+      --accent-clear-hover: #7D2D26;
+      --highlight-bg: #FFF066;
+      --base-font: 20px;
+    }
+
+    body.large-text {
+      --base-font: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-paper);
+      color: var(--text-main);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: var(--base-font);
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 2px solid var(--border-color);
+      padding: 24px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .title-area h1 {
+      margin: 0;
+      font-size: calc(var(--base-font) * 1.4);
+      color: var(--accent-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .title-area p {
+      margin: 4px 0 0 0;
+      font-size: calc(var(--base-font) * 0.85);
+      color: var(--text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    button {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: calc(var(--base-font) * 0.9);
+      font-weight: 600;
+      padding: 14px 22px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.05s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #E5E0D5;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-primary-hover);
+    }
+
+    .btn-clear {
+      background-color: var(--accent-clear);
+      color: #FFFFFF;
+    }
+
+    .btn-clear:hover {
+      background-color: var(--accent-clear-hover);
+    }
+
+    .search-section {
+      max-width: 1200px;
+      margin: 28px auto 20px auto;
+      padding: 0 24px;
+    }
+
+    .search-box-card {
+      background-color: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .search-label {
+      display: block;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 700;
+      font-size: calc(var(--base-font) * 1.1);
+      margin-bottom: 12px;
+    }
+
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 260px;
+      font-size: calc(var(--base-font) * 1.05);
+      padding: 16px 20px;
+      border: 2px solid #8C857B;
+      border-radius: 8px;
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 4px rgba(43, 91, 78, 0.2);
+    }
+
+    .spelling-toggle {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: calc(var(--base-font) * 0.9);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .spelling-toggle input[type="checkbox"] {
+      width: 26px;
+      height: 26px;
+      accent-color: var(--accent-primary);
+      cursor: pointer;
+    }
+
+    .main-grid {
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .results-panel, .reader-panel {
+      background-color: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .panel-header {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: calc(var(--base-font) * 1.05);
+      font-weight: 700;
+      margin: 0 0 16px 0;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--bg-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 68vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .result-card {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px 18px;
+      background-color: var(--bg-paper);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .result-card:hover {
+      border-color: var(--accent-primary);
+      background-color: #F4F1EA;
+    }
+
+    .result-card.active {
+      border-color: var(--accent-primary);
+      border-width: 3px;
+      background-color: #EEF5F2;
+    }
+
+    .result-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 700;
+      font-size: calc(var(--base-font) * 0.95);
+      color: var(--accent-primary);
+      margin: 0 0 4px 0;
+      word-break: break-word;
+    }
+
+    .result-date {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: calc(var(--base-font) * 0.72);
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .result-snippet {
+      font-size: calc(var(--base-font) * 0.88);
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .reader-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .reader-meta {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: calc(var(--base-font) * 0.8);
+      color: var(--text-muted);
+      background-color: var(--bg-subtle);
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+
+    .reader-content {
+      white-space: pre-wrap;
+      font-size: var(--base-font);
+      line-height: 1.75;
+      max-height: 62vh;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    mark {
+      background-color: var(--highlight-bg);
+      color: #000000;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--accent-primary);
+      color: #FFFFFF;
+      padding: 16px 24px;
+      border-radius: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 600;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 1000;
+    }
+
+    .status-toast.show {
+      opacity: 1;
+    }
+
+    footer {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 24px;
+      border-top: 2px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .admin-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-admin {
+      font-size: 16px;
+      padding: 10px 16px;
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-admin:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    @media print {
+      header, .search-section, .results-panel, .reader-actions, footer {
+        display: none !important;
+      }
+      .main-grid {
+        display: block;
+      }
+      .reader-panel {
+        border: none;
+        padding: 0;
+      }
+      .reader-content {
+        max-height: none;
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-area">
+      <h1>Mors Slægtssøger</h1>
+      <p id="docCounter">Indlæser arkiv...</p>
+    </div>
+    <button type="button" class="btn-secondary" id="fontToggleBtn" onclick="toggleFontSize()">
+      Gør teksten endnu større (A+)
+    </button>
+  </header>
+
+  <section class="search-section">
+    <div class="search-box-card">
+      <label for="searchInput" class="search-label">Hvad leder du efter i dine dokumenter i dag?</label>
+      <div class="search-row">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Skriv f.eks. et navn, et sogn eller et årstal..."
+          autocomplete="off"
+        />
+        <button type="button" class="btn-primary" onclick="runSearch()">Søg</button>
+        <button type="button" class="btn-clear" onclick="clearSearch()">Ryd søgning</button>
+      </div>
+      <label class="spelling-toggle">
+        <input type="checkbox" id="smartSpelling" checked onchange="runSearch()" />
+        <span>Find også lignende stavemåder (f.eks. Kristen / Christen og Ålborg / Aalborg)</span>
+      </label>
+    </div>
+  </section>
+
+  <main class="main-grid">
+    <section class="results-panel">
+      <div class="panel-header">
+        <span id="resultsHeading">Alle dokumenter</span>
+      </div>
+      <div class="result-list" id="resultList"></div>
+    </section>
+
+    <section class="reader-panel">
+      <div class="panel-header">
+        <span id="readerTitle">Vælg et dokument til venstre</span>
+      </div>
+      <div class="reader-actions" id="readerActions" style="display: none;">
+        <button type="button" class="btn-secondary" onclick="copyFilename()">Kopier dokumentnavn</button>
+        <button type="button" class="btn-secondary" onclick="window.print()">Print denne tekst</button>
+      </div>
+      <div class="reader-meta" id="readerMeta" style="display: none;"></div>
+      <div class="reader-content" id="readerContent">
+        Klik på et af dokumenterne i listen til venstre for at læse hele teksten her.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div style="font-size: 15px; color: var(--text-muted);">
+      Alle dokumenter ligger sikkert og privat på din egen computer.
+    </div>
+    <div class="admin-buttons">
+      <input type="file" id="docxInput" accept=".docx" multiple style="display: none;" onchange="handleDocxUpload(event)" />
+      <button type="button" class="btn-admin" onclick="document.getElementById('docxInput').click()">
+        Tilføj / Opdater Word-dokumenter (.docx)
+      </button>
+      <button type="button" class="btn-admin" onclick="exportBackup()">
+        Gem sikkerhedskopi
+      </button>
+      <input type="file" id="backupInput" accept=".json" style="display: none;" onchange="importBackup(event)" />
+      <button type="button" class="btn-admin" onclick="document.getElementById('backupInput').click()">
+        Hent sikkerhedskopi
+      </button>
+    </div>
+  </footer>
+
+  <div class="status-toast" id="statusToast"></div>
+
+  <script>
+    const DB_NAME = "MorsSlaegtsArkivDB";
+    const STORE_NAME = "dokumenter";
+    let db = null;
+    let allDocuments = [];
+    let selectedDocId = null;
+
+    const SAMPLE_DOCS = [
+      {
+        id: "Eksempel - Slægten fra Aalborg.docx",
+        filename: "Eksempel - Slægten fra Aalborg.docx",
+        updatedAt: "20. nov. 2026 (Eksempel)",
+        text: "SLÆGTEN FRA AALBORG\n\nChristen Jensen blev født den 14. marts 1854 i Vor Frue Sogn i Aalborg.\nHans far var arbejdsmand Jens Peter Jensen, og moderen var Maren Kirstine Nielsdatter.\n\nChristen blev konfirmeret i 1868 og arbejdede senere som møllersvend ved fjorden. Han blev gift i 1882 med Ane Marie Sørensen fra Nørresundby.\n\nNotat til næste gang: Tjek folketællingen 1880 for at se om han boede hos sin onkel."
+      },
+      {
+        id: "Eksempel - Familien i Kolding 1884.docx",
+        filename: "Eksempel - Familien i Kolding 1884.docx",
+        updatedAt: "20. nov. 2026 (Eksempel)",
+        text: "FAMILIEN I KOLDING\n\nCarl Christian Hansen, født 1861 i Vejle. Flyttede til Kolding i 1884 hvor han nedsatte sig som smed.\n\nI kirkebogen for Sankt Nicolai Sogn står der anført, at han stod fadder ved sin nevø Valdemars dåb i oktober 1889."
+      }
+    ];
+
+    function showToast(msg) {
+      const toast = document.getElementById("statusToast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3500);
+    }
+
+    function toggleFontSize() {
+      document.body.classList.toggle("large-text");
+      const btn = document.getElementById("fontToggleBtn");
+      if (document.body.classList.contains("large-text")) {
+        btn.textContent = "Gør teksten normal størrelse (A-)";
+      } else {
+        btn.textContent = "Gør teksten endnu større (A+)";
+      }
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains(STORE_NAME)) {
+            database.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function loadAllDocsFromDB() {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function saveDocsToDB(docs) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        docs.forEach((doc) => store.put(doc));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function removeSamplesIfRealDocsExist() {
+      const hasRealDocs = allDocuments.some((d) => !d.id.startsWith("Eksempel - "));
+      if (hasRealDocs) {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        SAMPLE_DOCS.forEach((s) => store.delete(s.id));
+        allDocuments = allDocuments.filter((d) => !d.id.startsWith("Eksempel - "));
+      }
+    }
+
+    function formatDanishDate(dateObj) {
+      return dateObj.toLocaleDateString("da-DK", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    // Ren lokal .docx tekst-udtrækker via browserens indbyggede DecompressionStream
+    async function extractTextFromDocx(arrayBuffer) {
+      const view = new DataView(arrayBuffer);
+      const bytes = new Uint8Array(arrayBuffer);
+      let offset = 0;
+
+      while (offset < bytes.length - 30) {
+        const signature = view.getUint32(offset, true);
+        if (signature !== 0x04034b50) break;
+
+        const compression = view.getUint16(offset + 8, true);
+        const compressedSize = view.getUint32(offset + 18, true);
+        const filenameLength = view.getUint16(offset + 26, true);
+        const extraLength = view.getUint16(offset + 28, true);
+
+        const nameBytes = bytes.slice(offset + 30, offset + 30 + filenameLength);
+        const filename = new TextDecoder("utf-8").decode(nameBytes);
+        const dataStart = offset + 30 + filenameLength + extraLength;
+        const dataEnd = dataStart + compressedSize;
+
+        if (filename === "word/document.xml") {
+          const compressedData = bytes.slice(dataStart, dataEnd);
+          let xmlText = "";
+
+          if (compression === 0) {
+            xmlText = new TextDecoder("utf-8").decode(compressedData);
+          } else if (compression === 8) {
+            const ds = new DecompressionStream("deflate-raw");
+            const writer = ds.writable.getWriter();
+            writer.write(compressedData);
+            writer.close();
+            const response = new Response(ds.readable);
+            xmlText = await response.text();
+          }
+
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+          const paragraphs = xmlDoc.getElementsByTagName("w:p");
+          const lines = [];
+
+          for (let i = 0; i < paragraphs.length; i++) {
+            const texts = paragraphs[i].getElementsByTagName("w:t");
+            let line = "";
+            for (let j = 0; j < texts.length; j++) {
+              line += texts[j].textContent;
+            }
+            lines.push(line);
+          }
+          return lines.join("\n").trim();
+        }
+
+        offset = dataEnd;
+      }
+      throw new Error("Kunne ikke læse dokumentets indhold.");
+    }
+
+    async function handleDocxUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+
+      showToast(
